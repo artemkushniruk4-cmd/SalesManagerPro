@@ -1,39 +1,32 @@
-﻿using System;
-using System.Data;
-using System.Data.SqlClient;
-using System.Windows;
+﻿using Microsoft.EntityFrameworkCore;
+using System.Collections.Generic;
 
-namespace SalesManagerPro
+public class User
 {
-    public partial class MainWindow : Window
+    public int Id { get; set; }
+    public string? Name { get; set; }
+    public string? LastName { get; set; }
+    public string? Email { get; set; }
+    public string? PhoneNumber { get; set; }
+    public string? Login { get; set; }
+    public string? Password { get; set; }
+}
+
+
+public class AppDbContext : DbContext
+{
+    public DbSet<User> Users { get; set; }
+
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
-        // Твій рядок підключення до бази
-        private string connString = @"Data Source=.\SQLEXPRESS;Initial Catalog=SalesDB;Integrated Security=True";
+        // Для WPF найпростіше почати з SQLite (локальний файл бази)
+        // Коли буде серверна БД, просто заміниш UseSqlite на UseSqlServer
+        optionsBuilder.UseSqlite("Data Source=users_app.db");
+    }
 
-        public MainWindow()
-        {
-            InitializeComponent();
-        }
-
-        private void Button_Click(object sender, RoutedEventArgs e)
-        {
-            try
-            {
-                using (SqlConnection conn = new SqlConnection(connString))
-                {
-                    // Запит до твоєї таблиці Clients
-                    SqlDataAdapter adapter = new SqlDataAdapter("SELECT * FROM Clients", conn);
-                    DataTable table = new DataTable();
-                    adapter.Fill(table);
-
-                    // Відправляємо дані в таблицю на екрані
-                    MyGrid.ItemsSource = table.DefaultView;
-                }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("Помилка: " + ex.Message);
-            }
-        }
+    public AppDbContext()
+    {
+        // Цей рядок автоматично створить файл бази при запуску, якщо його немає
+        Database.EnsureCreated();
     }
 }
